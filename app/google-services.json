@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "208116150955",
+    "project_id": "bluetoothbike-38ab0",
+    "storage_bucket": "bluetoothbike-38ab0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:208116150955:android:51d2ae8db5c4cd1900fdee",
+        "android_client_info": {
+          "package_name": "com.example.bluetoothbikeapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "208116150955-p7lnlk3jv42a4rinoud6begf0q05ftt7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.bluetoothbikeapp",
+            "certificate_hash": "ae730eb3153968023eeede157b1e612921433272"
+          }
+        },
+        {
+          "client_id": "208116150955-gced2ju5muedmr1u3bagbvnduku5hb6s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBK9FNV6aLp4VdA2yJ9cmkHYT5sgCEndxw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "208116150955-gced2ju5muedmr1u3bagbvnduku5hb6s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
