@@ -1,9 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">BluetoothBikeApp</string>
     <string name="name">username</string>
     <string name="password">password</string>
-    <string name="login">loginbutton</string>
-    <string name="registration">register</string>
+    <string name="registration">registerbutton</string>
     <string name="login_as_guest">Bejelentekezés vendégként</string>
     <string name="register">Regisztrálj!</string>
     <string name="email">Email</string>
