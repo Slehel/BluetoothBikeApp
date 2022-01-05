@@ -70,7 +70,7 @@ public class RegisterActivity extends AppCompatActivity {
 
 
         Log.i(LOG_TAG, "Regisztrált: " + userName + ", e-mail: " + email);
-        // startShopping();
+
         // TODO: A regisztrációs funkcionalitást meg kellene valósítani egyszer.
 
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -78,6 +78,7 @@ public class RegisterActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(task.isSuccessful()) {
                     Log.d(LOG_TAG, "User created successfully");
+                    //Startshopping()
 
                 } else {
                     Log.d(LOG_TAG, "User was't created successfully:", task.getException());

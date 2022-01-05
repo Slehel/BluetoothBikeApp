@@ -2,7 +2,7 @@
     <string name="app_name">BluetoothBikeApp</string>
     <string name="name">username</string>
     <string name="password">password</string>
-    <string name="login">loginbutton</string>
+    <string name="login">login</string>
     <string name="registration">register</string>
     <string name="login_as_guest">Bejelentekezés vendégként</string>
     <string name="register">Regisztrálj!</string>
