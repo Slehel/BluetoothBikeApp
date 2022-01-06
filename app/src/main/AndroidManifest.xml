@@ -15,6 +15,7 @@
 
         </activity>
         <activity android:name=".RegisterActivity" />
+        <activity android:name=".BluetoothDeviceActivity" />
         <activity android:name=".SplashActivity"
             android:theme="@style/AppTheme1"
             android:exported="true">

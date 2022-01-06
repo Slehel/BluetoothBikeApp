@@ -24,7 +24,6 @@ import com.google.firebase.auth.FirebaseAuth;
 public class RegisterActivity extends AppCompatActivity {
     private static final String LOG_TAG = RegisterActivity.class.getName();
     private static final String PREF_KEY = RegisterActivity.class.getPackage().toString();
-    private static final int SECRET_KEY = 99;
 
     EditText userNameEditText;
     EditText userEmailEditText;
@@ -39,7 +38,9 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.register_activity);
 
-        mAuth = FirebaseAuth.getInstance();
+        // Bundle bundle = getIntent().getExtras();
+        // int secret_key = bundle.getInt("SECRET_KEY");
+
 
         userNameEditText = findViewById(R.id.userNameEditText);
         userEmailEditText = findViewById(R.id.userEmailEditText);
@@ -53,6 +54,8 @@ public class RegisterActivity extends AppCompatActivity {
         userNameEditText.setText(userName);
         passwordEditText.setText(password);
         passwordConfirmEditText.setText(password);
+
+        mAuth = FirebaseAuth.getInstance();
 
         Log.i(LOG_TAG, "onCreate");
     }
@@ -73,23 +76,25 @@ public class RegisterActivity extends AppCompatActivity {
 
         // TODO: A regisztrációs funkcionalitást meg kellene valósítani egyszer.
 
-        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                if(task.isSuccessful()) {
-                    Log.d(LOG_TAG, "User created successfully");
-                    //Startshopping()
-
-                } else {
-                    Log.d(LOG_TAG, "User was't created successfully:", task.getException());
-                    Toast.makeText(RegisterActivity.this, "User was't created successfully:", Toast.LENGTH_LONG).show();
-                }
+        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
+            if(task.isSuccessful()){
+                Log.d(LOG_TAG, "User created successfully");
+                startBluetoothPage();
+            } else {
+                Log.d(LOG_TAG, "User wasn't created successfully");
+                Toast.makeText(RegisterActivity.this, "User was't created successfully: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }
 
     public void cancel(View view) {
         finish();
+    }
+
+    private void startBluetoothPage(/* registered used class */) {
+        Intent intent = new Intent(this, BluetoothDeviceActivity.class);
+        // intent.putExtra("SECRET_KEY", SECRET_KEY);
+        startActivity(intent);
     }
 
     @Override
