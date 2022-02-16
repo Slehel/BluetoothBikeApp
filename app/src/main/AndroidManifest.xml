@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.bluetoothbikeapp">
+<!--    tools:ignore="CoarseFineLocation">-->
+
+
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
 
     <application
         android:allowBackup="true"
@@ -16,6 +30,7 @@
         </activity>
         <activity android:name=".RegisterActivity" />
         <activity android:name=".BluetoothDeviceActivity" />
+        <activity android:name=".DeviceListActivity" />
         <activity android:name=".SplashActivity"
             android:theme="@style/AppTheme1"
             android:exported="true">
