@@ -18,6 +18,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -27,6 +28,8 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import java.io.File;
 
 @SuppressLint("MissingPermission")
 public class BluetoothDeviceActivity extends AppCompatActivity {
@@ -40,6 +43,7 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
     private ListView listMainChat;
     private EditText edCreateMessage;
     private Button btnSendMessage;
+    private Button btnRecord;
     private ArrayAdapter<String> adapterMainChat;
 
     private final int LOCATION_PERMISSION_REQUEST = 101;
@@ -125,10 +129,12 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
 //        }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void init() {
         listMainChat = findViewById(R.id.list_conversation);
         edCreateMessage = findViewById(R.id.ed_enter_message);
         btnSendMessage = findViewById(R.id.btn_send_msg);
+        btnRecord = findViewById(R.id.btn_record);
 
         adapterMainChat = new ArrayAdapter<String>(context, R.layout.message_layout);
         listMainChat.setAdapter(adapterMainChat);
@@ -141,6 +147,19 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
                     edCreateMessage.setText("");
                     chatUtils.write(message.getBytes());
                 }
+            }
+        });
+
+        btnRecord.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                    // Start recording
+                    File file = new File(getCacheDir(), System.currentTimeMillis() + ".wav");
+                } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    // Stop recording
+                }
+                return true;
             }
         });
     }
