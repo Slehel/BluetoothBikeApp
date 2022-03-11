@@ -6,6 +6,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
@@ -15,7 +16,6 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,6 +28,7 @@ import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+@SuppressLint("MissingPermission")
 public class BluetoothDeviceActivity extends AppCompatActivity {
     private static final String LOG_TAG = BluetoothDeviceActivity.class.getName();
     private FirebaseUser user;
@@ -112,16 +113,16 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
         initBluetooth();
         chatUtils = new ChatUtils(context,handler);
 
-        mAuth = FirebaseAuth.getInstance();
-        // mAuth.signOut();
-        user = FirebaseAuth.getInstance().getCurrentUser();
-
-        if(user != null) {
-            Log.d(LOG_TAG, "Authenticated user!");
-        } else {
-            Log.d(LOG_TAG, "Unauthenticated user!");
-            finish();
-        }
+//        mAuth = FirebaseAuth.getInstance();
+//        // mAuth.signOut();
+//        user = FirebaseAuth.getInstance().getCurrentUser();
+//
+//        if(user != null) {
+//            Log.d(LOG_TAG, "Authenticated user!");
+//        } else {
+//            Log.d(LOG_TAG, "Unauthenticated user!");
+//            finish();
+//        }
     }
 
     private void init() {

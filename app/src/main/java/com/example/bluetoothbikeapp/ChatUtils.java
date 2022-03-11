@@ -1,5 +1,6 @@
 package com.example.bluetoothbikeapp;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
@@ -15,6 +16,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
 
+@SuppressLint("MissingPermission")
 public class ChatUtils {
     private Context context;
     private final Handler handler;
@@ -243,12 +245,14 @@ public class ChatUtils {
             byte[] buffer = new byte[1024];
             int bytes;
 
-            try {
-                bytes = inputStream.read(buffer);
+            while (socket.isConnected()) {
+                try {
+                    bytes = inputStream.read(buffer);
 
-                handler.obtainMessage(BluetoothDeviceActivity.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
-            } catch (IOException e) {
-                connectionLost();
+                    handler.obtainMessage(BluetoothDeviceActivity.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
+                } catch (IOException e) {
+                    connectionLost();
+                }
             }
         }
 
@@ -257,7 +261,7 @@ public class ChatUtils {
                 outputStream.write(buffer);
                 handler.obtainMessage(BluetoothDeviceActivity.MESSAGE_WRITE, -1, -1, buffer).sendToTarget();
             } catch (IOException e) {
-
+                Log.e(BluetoothBikeApplication.TAG, e.getMessage(), e);
             }
         }
 
@@ -265,7 +269,7 @@ public class ChatUtils {
             try {
                 socket.close();
             } catch (IOException e) {
-
+                Log.e(BluetoothBikeApplication.TAG, e.getMessage(), e);
             }
         }
     }

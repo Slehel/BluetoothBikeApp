@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatDelegate;
 
 public class BluetoothBikeApplication extends Application {
 
+    public static final String TAG = "BluetoothBike";
+
     @Override
     public void onCreate() {
         super.onCreate();
