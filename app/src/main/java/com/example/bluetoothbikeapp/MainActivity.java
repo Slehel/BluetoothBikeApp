@@ -132,4 +132,9 @@ public class MainActivity extends AppCompatActivity {
         super.onRestart();
         Log.i(LOG_TAG, "onRestart");
     }
+
+    public void startBluetoothPage(View view) {
+        Intent intent = new Intent(this, BluetoothDeviceActivity.class);
+        startActivity(intent);
+    }
 }

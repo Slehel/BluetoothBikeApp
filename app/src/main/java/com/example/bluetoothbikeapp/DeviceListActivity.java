@@ -1,5 +1,6 @@
 package com.example.bluetoothbikeapp;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -7,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -50,18 +52,18 @@ public class DeviceListActivity extends AppCompatActivity {
         listPairedDevices.setAdapter(adapterPairedDevices);
         listAvailableDevices.setAdapter(adapterAvailableDevices);
 
-        //listAvailableDevices.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-//                String info = ((TextView) view).getText().toString();
-//                String address = info.substring(info.length() - 17);
-//
-//                Intent intent = new Intent();
-//                intent.putExtra("deviceAddress", address);
-//                setResult(RESULT_OK, intent);
-//                finish();
-//            }
-//        });
+        listAvailableDevices.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String info = ((TextView) view).getText().toString();
+                String address = info.substring(info.length() - 17);
+
+                Intent intent = new Intent();
+                intent.putExtra("deviceAddress", address);
+                setResult(RESULT_OK, intent);
+                finish();
+            }
+        });
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
@@ -72,32 +74,30 @@ public class DeviceListActivity extends AppCompatActivity {
             }
         }
 
-
         IntentFilter intentFilter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         registerReceiver(bluetoothDeviceListener, intentFilter);
         IntentFilter intentFilter1 = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         registerReceiver(bluetoothDeviceListener, intentFilter1);
+
+        listPairedDevices.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                bluetoothAdapter.cancelDiscovery();
+
+                String info = ((TextView) view).getText().toString();
+                String address = info.substring(info.length() - 17);
+
+                Log.d("Address", address);
+
+                Intent intent = new Intent();
+                intent.putExtra("deviceAddress", address);
+
+                setResult(Activity.RESULT_OK, intent);
+                finish();
+            }
+        });
     }
-//
-//        listPairedDevices.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-//                bluetoothAdapter.cancelDiscovery();
-//
-//                String info = ((TextView) view).getText().toString();
-//                String address = info.substring(info.length() - 17);
-//
-//                Log.d("Address", address);
-//
-//                Intent intent = new Intent();
-//                intent.putExtra("deviceAddress", address);
-//
-//                setResult(Activity.RESULT_OK, intent);
-//                finish();
-//            }
-//        });
-//    }
-//
+
     private BroadcastReceiver bluetoothDeviceListener = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -149,12 +149,12 @@ public class DeviceListActivity extends AppCompatActivity {
         bluetoothAdapter.startDiscovery();
     }
 
-//    @Override
-//    protected void onDestroy() {
-//        super.onDestroy();
-//
-//        if (bluetoothDeviceListener != null) {
-//            unregisterReceiver(bluetoothDeviceListener);
-//        }
-//    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (bluetoothDeviceListener != null) {
+            unregisterReceiver(bluetoothDeviceListener);
+        }
+    }
 }

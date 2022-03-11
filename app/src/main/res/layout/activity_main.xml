@@ -89,7 +89,7 @@
         android:layout_marginTop="112dp"
         android:layout_marginRight="50dp"
         android:backgroundTint="#3F51B5"
-        android:onClick="loginAsGuest"
+        android:onClick="startBluetoothPage"
         android:text="@string/login_as_guest"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
