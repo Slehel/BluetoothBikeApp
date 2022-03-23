@@ -40,4 +40,13 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:29.0.3')
     implementation 'com.google.firebase:firebase-auth'
     implementation 'com.google.android.gms:play-services-auth:19.0.0'
+
+//    //Android jetpack navigation
+//    dependencies {
+//        def nav_version = "2.4.1"
+//        implementation "androidx.navigation:navigation-fragment:$nav_version"
+//        implementation "androidx.navigation:navigation-ui:$nav_version"
+//    }
+//    //Material Design Component
+//    implementation 'com.google.android.material:material:1.6.0-beta01'
 }
