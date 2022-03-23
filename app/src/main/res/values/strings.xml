@@ -4,7 +4,7 @@
     <string name="password">password</string>
     <string name="login">login</string>
     <string name="registration">register</string>
-    <string name="login_as_guest">Bejelentekezés vendégként</string>
+    <string name="login_as_guest">Bejelentkezés vendégként</string>
     <string name="register">Regisztrálj!</string>
     <string name="email">Email</string>
     <string name="password_again">password again</string>

@@ -16,6 +16,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -117,16 +118,16 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
         initBluetooth();
         chatUtils = new ChatUtils(context,handler);
 
-//        mAuth = FirebaseAuth.getInstance();
-//        // mAuth.signOut();
-//        user = FirebaseAuth.getInstance().getCurrentUser();
-//
-//        if(user != null) {
-//            Log.d(LOG_TAG, "Authenticated user!");
-//        } else {
-//            Log.d(LOG_TAG, "Unauthenticated user!");
-//            finish();
-//        }
+        mAuth = FirebaseAuth.getInstance();
+        // mAuth.signOut();
+        user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if(user != null) {
+            Log.d(LOG_TAG, "Authenticated user!");
+        } else {
+            Log.d(LOG_TAG, "Unauthenticated user!");
+            finish();
+        }
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -154,10 +155,10 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                    // Start recording
+                    //TODO Start recording
                     File file = new File(getCacheDir(), System.currentTimeMillis() + ".wav");
                 } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                    // Stop recording
+                    //TODO Stop recording
                 }
                 return true;
             }
@@ -263,5 +264,10 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
         if (chatUtils != null) {
             chatUtils.stop();
         }
+    }
+
+    public void logout(View view) {
+        // mAuth.signOut();
+        finish();
     }
 }
