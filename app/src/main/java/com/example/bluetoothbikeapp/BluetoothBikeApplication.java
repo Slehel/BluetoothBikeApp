@@ -19,10 +19,18 @@ public class BluetoothBikeApplication extends Application {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
     }
 
-    public File getNewRecordingFile() {
+    public File getRecordsDirectory() {
         File filesDir = this.getFilesDir();
         File recordsDir = new File(filesDir, "recordings");
         if (!recordsDir.exists() && !recordsDir.mkdir()) {
+            return null; // failed to create recordings directory
+        }
+        return recordsDir;
+    }
+
+    public File getNewRecordingFile() {
+        File recordsDir = getRecordsDirectory();
+        if (recordsDir == null) {
             return null; // failed to create recordings directory
         }
 

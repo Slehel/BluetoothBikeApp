@@ -34,7 +34,7 @@ import java.io.IOException;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class AudioList extends AppCompatActivity implements AudioListAdapter.onItemListClick {
+public class AudioListActivity extends AppCompatActivity implements AudioListAdapter.onItemListClick {
 
     private ConstraintLayout playerSheet;
     private BottomSheetBehavior bottomSheetBehavior;
@@ -58,10 +58,6 @@ public class AudioList extends AppCompatActivity implements AudioListAdapter.onI
     private SeekBar playerSeekbar;
     private Handler seekbarHandler;
     private Runnable updateSeekbar;
-
-    public AudioList() {
-        // Required empty public constructor
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,8 +83,7 @@ public class AudioList extends AppCompatActivity implements AudioListAdapter.onI
 
         playerSeekbar = findViewById(R.id.player_seekbar);
 
-        String path = this.getExternalFilesDir("/").getAbsolutePath();
-        File directory = new File(path);
+        File directory = ((BluetoothBikeApplication)getApplication()).getRecordsDirectory();
         allFiles = directory.listFiles();
 
         audioListAdapter = new AudioListAdapter(allFiles, this);

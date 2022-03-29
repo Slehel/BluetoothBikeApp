@@ -411,12 +411,12 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
     }
 
     public void startRecordList() {
-        Intent intent = new Intent(this, AudioList.class);
+        Intent intent = new Intent(this, AudioListActivity.class);
         startActivity(intent);
     }
 
     public void startRecordList(View view) {
-        Intent intent = new Intent(this, AudioList.class);
+        Intent intent = new Intent(this, AudioListActivity.class);
         startActivity(intent);
     }
 

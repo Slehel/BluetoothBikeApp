@@ -32,7 +32,7 @@
         <activity android:name=".RegisterActivity" />
         <activity android:name=".BluetoothDeviceActivity" />
         <activity android:name=".DeviceListActivity" />
-        <activity android:name=".AudioList" />
+        <activity android:name=".AudioListActivity" />
         <activity android:name=".SplashActivity"
             android:theme="@style/AppTheme1"
             android:exported="true">
