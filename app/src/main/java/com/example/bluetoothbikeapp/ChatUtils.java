@@ -121,8 +121,7 @@ public class ChatUtils {
             connThread = connectedThread;
         }
 
-        byte[] buffer = encoderDecoder.encode(packet);
-        connThread.write(buffer);
+        connThread.write(packet);
     }
 
     private class AcceptThread extends Thread {
@@ -276,10 +275,11 @@ public class ChatUtils {
             }
         }
 
-        public void write(byte[] buffer) {
+        public void write(BasePacket packet) {
+            byte[] buffer = encoderDecoder.encode(packet);
             try {
                 outputStream.write(buffer);
-                handler.obtainMessage(BluetoothDeviceActivity.MESSAGE_WRITE, -1, -1, buffer).sendToTarget();
+                handler.obtainMessage(BluetoothDeviceActivity.MESSAGE_WRITE, -1, -1, packet).sendToTarget();
             } catch (IOException e) {
                 Log.e(BluetoothBikeApplication.TAG, e.getMessage(), e);
             }

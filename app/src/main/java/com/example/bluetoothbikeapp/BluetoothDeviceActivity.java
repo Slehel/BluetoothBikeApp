@@ -84,6 +84,7 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
     private Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message message) {
+            Object obj = message.obj;
             switch (message.what) {
                 case MESSAGE_STATE_CHANGED:
                     switch (message.arg1) {
@@ -102,12 +103,14 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
                     }
                     break;
                 case MESSAGE_WRITE:
-                    byte[] buffer1 = (byte[]) message.obj;
-                    String outputBuffer = new String(buffer1);
-                    adapterMainChat.add("Me: " + outputBuffer);
+                    if (obj instanceof TypedMessagePacket) {
+                        adapterMainChat.add("Me: " + ((TypedMessagePacket) obj).getData());
+                    }
+                    if (obj instanceof VoiceFilePacket) {
+                        adapterMainChat.add("Me (voice): " + ((VoiceFilePacket) obj).getData().getName());
+                    }
                     break;
                 case MESSAGE_READ:
-                    Object obj = message.obj;
                     if (obj instanceof TypedMessagePacket) {
                         adapterMainChat.add(connectedDevice + ": " + ((TypedMessagePacket) obj).getData());
                     }
@@ -245,8 +248,6 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
         mediaRecorder.stop();
         mediaRecorder.release();
         mediaRecorder = null;
-
-        adapterMainChat.add("Me (voice): " + recordFile.getName());
 
         // send
         VoiceFilePacket packet = new VoiceFilePacket(recordFile);
