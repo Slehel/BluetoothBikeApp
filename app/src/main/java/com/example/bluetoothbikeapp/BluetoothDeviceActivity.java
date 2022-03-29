@@ -1,10 +1,5 @@
 package com.example.bluetoothbikeapp;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -13,28 +8,44 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Chronometer;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import com.example.bluetoothbikeapp.network.BasePacket;
+import com.example.bluetoothbikeapp.network.TypedMessagePacket;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 @SuppressLint("MissingPermission")
 public class BluetoothDeviceActivity extends AppCompatActivity {
     private static final String LOG_TAG = BluetoothDeviceActivity.class.getName();
+
     private FirebaseUser user;
     private FirebaseAuth mAuth;
     private Context context;
@@ -44,7 +55,9 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
     private ListView listMainChat;
     private EditText edCreateMessage;
     private Button btnSendMessage;
-    private Button btnRecord;
+    private ImageView btnRecord;
+    private ImageView listBtn;
+    private TextView filenameText;
     private ArrayAdapter<String> adapterMainChat;
 
     private final int LOCATION_PERMISSION_REQUEST = 101;
@@ -59,6 +72,17 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
     public static final String DEVICE_NAME = "deviceName";
     public static final String TOAST = "toast";
     private String connectedDevice;
+
+
+    private boolean isRecording = false;
+
+    private String recordPermission = Manifest.permission.RECORD_AUDIO;
+    private int PERMISSION_CODE = 21;
+
+    private MediaRecorder mediaRecorder;
+    private String recordFile;
+
+    private Chronometer timer;
 
     private Handler handler = new Handler(new Handler.Callback() {
         @Override
@@ -86,9 +110,10 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
                     adapterMainChat.add("Me: " + outputBuffer);
                     break;
                 case MESSAGE_READ:
-                    byte[] buffer = (byte[]) message.obj;
-                    String inputBuffer = new String(buffer, 0, message.arg1);
-                    adapterMainChat.add(connectedDevice + ": " + inputBuffer);
+                    Object obj = message.obj;
+                    if (obj instanceof TypedMessagePacket) {
+                        adapterMainChat.add(connectedDevice + ": " + ((TypedMessagePacket) obj).getData());
+                    }
                     break;
                 case MESSAGE_DEVICE_NAME:
                     connectedDevice = message.getData().getString(DEVICE_NAME);
@@ -106,6 +131,10 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
         getSupportActionBar().setSubtitle(subTitle);
     }
 
+    public BluetoothDeviceActivity() {
+
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,13 +145,13 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
 
         init();
         initBluetooth();
-        chatUtils = new ChatUtils(context,handler);
+        chatUtils = new ChatUtils(context, handler);
 
         mAuth = FirebaseAuth.getInstance();
         // mAuth.signOut();
         user = FirebaseAuth.getInstance().getCurrentUser();
 
-        if(user != null) {
+        if (user != null) {
             Log.d(LOG_TAG, "Authenticated user!");
         } else {
             Log.d(LOG_TAG, "Unauthenticated user!");
@@ -136,6 +165,9 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
         edCreateMessage = findViewById(R.id.ed_enter_message);
         btnSendMessage = findViewById(R.id.btn_send_msg);
         btnRecord = findViewById(R.id.btn_record);
+        listBtn = findViewById(R.id.record_list_btn);
+        timer = findViewById(R.id.record_timer);
+        filenameText = findViewById(R.id.record_filename);
 
         adapterMainChat = new ArrayAdapter<String>(context, R.layout.message_layout);
         listMainChat.setAdapter(adapterMainChat);
@@ -146,23 +178,118 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
                 String message = edCreateMessage.getText().toString();
                 if (!message.isEmpty()) {
                     edCreateMessage.setText("");
-                    chatUtils.write(message.getBytes());
+                    TypedMessagePacket packet = new TypedMessagePacket(message);
+                    chatUtils.write(packet);
+                }
+            }
+        });
+        listBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isRecording) {
+                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
+                    alertDialog.setPositiveButton("OKAY", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            startRecordList();
+                            //navController.navigate(R.id.action_recordFragment_to_audioListFragment);
+                            isRecording = false;
+                        }
+                    });
+                    alertDialog.setNegativeButton("CANCEL", null);
+                    alertDialog.setTitle("Audio Still recording");
+                    alertDialog.setMessage("Are you sure, you want to stop the recording?");
+                    alertDialog.create().show();
+                } else {
+                    startRecordList();
+                    // navController.navigate(R.id.action_recordFragment_to_audioListFragment);
+                }
+
+            }
+        });
+        btnRecord.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isRecording) {
+                    //Stop Recording
+                    stopRecording();
+
+                    // Change button image and set Recording state to false
+                    btnRecord.setImageDrawable(getResources().getDrawable(R.drawable.record_btn_stopped, null));
+                    isRecording = false;
+                } else {
+                    //Check permission to record audio
+                    if (checkPermissions2()) {
+                        //Start Recording
+                        startRecording();
+
+                        // Change button image and set Recording state to false
+                        btnRecord.setImageDrawable(getResources().getDrawable(R.drawable.record_btn_recording, null));
+                        isRecording = true;
+                    }
                 }
             }
         });
 
-        btnRecord.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                    //TODO Start recording
-                    File file = new File(getCacheDir(), System.currentTimeMillis() + ".wav");
-                } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                    //TODO Stop recording
-                }
-                return true;
-            }
-        });
+
+    }
+
+    private void stopRecording() {
+        //Stop Timer, very obvious
+        timer.stop();
+
+        //Change text on page to file saved
+        filenameText.setText("Recording Stopped, File Saved : " + recordFile);
+
+        //Stop media recorder and set it to null for further use to record new audio
+        mediaRecorder.stop();
+        mediaRecorder.release();
+        mediaRecorder = null;
+
+        // TODO add to chat feed
+
+        // send
+    }
+
+    private void startRecording() {
+        //Get app external directory path
+        File filesDir = this.getFilesDir();
+        File recordsDir = new File(filesDir, "recordings");
+        if (!recordsDir.exists() && !recordsDir.mkdir()) {
+            return; // failed to create recordings directory
+        }
+
+        //Start timer from 0
+        timer.setBase(SystemClock.elapsedRealtime());
+        timer.start();
+
+        String recordPath = recordsDir.getAbsolutePath();
+
+        //Get current date and time
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy_MM_dd_hh_mm_ss", Locale.CANADA);
+        Date now = new Date();
+
+        //initialize filename variable with date and time at the end to ensure the new file wont overwrite previous file
+        recordFile = "Recording_" + formatter.format(now) + ".3gp";
+        Log.i(LOG_TAG, "path: " + recordPath);
+
+        filenameText.setText("Recording, File Name : " + recordFile);
+
+        //Setup Media Recorder for recording
+        mediaRecorder = new MediaRecorder();
+        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        mediaRecorder.setOutputFile(recordPath + "/" + recordFile);
+        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+
+        try {
+            mediaRecorder.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        //Start Recording
+        mediaRecorder.start();
     }
 
     private void initBluetooth() {
@@ -179,13 +306,12 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
     }
 
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_search_devices:
                 //Toast.makeText(context,"Clicked Search Devices!",Toast.LENGTH_SHORT).show();
-               checkPermissions();
+                checkPermissions();
                 return true;
             case R.id.menu_enable_bluetooth:
 
@@ -201,7 +327,19 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(BluetoothDeviceActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST);
         } else {
             Intent intent = new Intent(context, DeviceListActivity.class);
-            startActivityForResult(intent,SELECT_DEVICE);
+            startActivityForResult(intent, SELECT_DEVICE);
+        }
+    }
+
+    private boolean checkPermissions2() {
+        //Check permission
+        if (ActivityCompat.checkSelfPermission(context, recordPermission) == PackageManager.PERMISSION_GRANTED) {
+            //Permission Granted
+            return true;
+        } else {
+            //Permission not granted, ask for permission
+            ActivityCompat.requestPermissions(this, new String[]{recordPermission}, PERMISSION_CODE);
+            return false;
         }
     }
 
@@ -209,7 +347,7 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == SELECT_DEVICE && resultCode == RESULT_OK) {
             String address = data.getStringExtra("deviceAddress");
-           // Toast.makeText(context, "Adress:"+ address, Toast.LENGTH_SHORT).show();
+            // Toast.makeText(context, "Adress:"+ address, Toast.LENGTH_SHORT).show();
             chatUtils.connect(bluetoothAdapter.getRemoteDevice(address));
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -220,7 +358,7 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
         if (requestCode == LOCATION_PERMISSION_REQUEST) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Intent intent = new Intent(context, DeviceListActivity.class);
-                startActivityForResult(intent,SELECT_DEVICE);
+                startActivityForResult(intent, SELECT_DEVICE);
             } else {
                 new AlertDialog.Builder(context)
                         .setCancelable(false)
@@ -247,7 +385,7 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
     private void enableBluetooth() {
         if (bluetoothAdapter.isEnabled()) {
             Toast.makeText(context, "Bluetooth Already Enabled", Toast.LENGTH_SHORT).show();
-        }else{
+        } else {
             bluetoothAdapter.enable();
         }
 
@@ -266,8 +404,28 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (isRecording) {
+            stopRecording();
+        }
+    }
+
     public void logout(View view) {
         // mAuth.signOut();
         finish();
     }
+
+    public void startRecordList() {
+        Intent intent = new Intent(this, AudioList.class);
+        startActivity(intent);
+    }
+
+    public void startRecordList(View view) {
+        Intent intent = new Intent(this, AudioList.class);
+        startActivity(intent);
+    }
+
+
 }

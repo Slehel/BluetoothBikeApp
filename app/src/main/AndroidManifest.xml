@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.bluetoothbikeapp">
 <!--    tools:ignore="CoarseFineLocation">-->
-
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
@@ -32,6 +32,7 @@
         <activity android:name=".RegisterActivity" />
         <activity android:name=".BluetoothDeviceActivity" />
         <activity android:name=".DeviceListActivity" />
+        <activity android:name=".AudioList" />
         <activity android:name=".SplashActivity"
             android:theme="@style/AppTheme1"
             android:exported="true">

@@ -11,6 +11,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.example.bluetoothbikeapp.network.BasePacket;
+import com.example.bluetoothbikeapp.network.EncoderDecoder;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,6 +27,7 @@ public class ChatUtils {
     private ConnectThread connectThread;
     private AcceptThread acceptThread;
     private ConnectedThread connectedThread;
+    private EncoderDecoder encoderDecoder = new EncoderDecoder();
 
     private final UUID APP_UUID = UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
     private final String APP_NAME = "BluetoothChatApp";
@@ -106,7 +110,7 @@ public class ChatUtils {
         setState(STATE_CONNECTING);
     }
 
-    public void write(byte[] buffer) {
+    public void write(BasePacket packet) {
         ConnectedThread connThread;
         synchronized (this) {
             if (state != STATE_CONNECTED) {
@@ -116,6 +120,7 @@ public class ChatUtils {
             connThread = connectedThread;
         }
 
+        byte[] buffer = encoderDecoder.encode(packet);
         connThread.write(buffer);
     }
 
@@ -242,14 +247,28 @@ public class ChatUtils {
         }
 
         public void run() {
-            byte[] buffer = new byte[1024];
+            byte[] headerBuffer = new byte[EncoderDecoder.HEADER_BYTE_SIZE];
             int bytes;
 
             while (socket.isConnected()) {
                 try {
-                    bytes = inputStream.read(buffer);
+                    bytes = inputStream.read(headerBuffer);
+                    if (bytes != EncoderDecoder.HEADER_BYTE_SIZE) {
+                        throw new IOException("Header size mismatch");
+                    }
 
-                    handler.obtainMessage(BluetoothDeviceActivity.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
+                    // read the 1st bit to get the type
+                    BasePacket packet = encoderDecoder.getPacketClassFromFirstByte(headerBuffer[0]);
+
+                    // read the 2nd - 9th bit to get the length
+                    long length = 0;
+                    for (int i = 1; i < EncoderDecoder.HEADER_BYTE_SIZE; i++) {
+                        length = (length << 8) + (headerBuffer[i] & 0xFF);
+                    }
+
+                    packet.readFromStream(length, inputStream);
+
+                    handler.obtainMessage(BluetoothDeviceActivity.MESSAGE_READ, -1, -1, packet).sendToTarget();
                 } catch (IOException e) {
                     connectionLost();
                 }
