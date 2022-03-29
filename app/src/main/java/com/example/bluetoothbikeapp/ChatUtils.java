@@ -269,7 +269,7 @@ public class ChatUtils {
 
                     packet.readFromStream(length, inputStream);
 
-                    handler.obtainMessage(BluetoothDeviceActivity.MESSAGE_READ, -1, -1, packet).sendToTarget();
+                    handler.obtainMessage(BluetoothDeviceActivity.MESSAGE_RECEIVED, -1, -1, packet).sendToTarget();
                 } catch (IOException e) {
                     connectionLost();
                 }
@@ -279,7 +279,7 @@ public class ChatUtils {
         public void write(BasePacket packet) {
             try {
                 encoderDecoder.encodeInto(packet, outputStream);
-                handler.obtainMessage(BluetoothDeviceActivity.MESSAGE_WRITE, -1, -1, packet).sendToTarget();
+                handler.obtainMessage(BluetoothDeviceActivity.MESSAGE_SENT, -1, -1, packet).sendToTarget();
             } catch (IOException e) {
                 Log.e(BluetoothBikeApplication.TAG, e.getMessage(), e);
             }

@@ -61,8 +61,8 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
     private final int SELECT_DEVICE = 102;
 
     public static final int MESSAGE_STATE_CHANGED = 0;
-    public static final int MESSAGE_READ = 1;
-    public static final int MESSAGE_WRITE = 2;
+    public static final int MESSAGE_RECEIVED = 1;
+    public static final int MESSAGE_SENT = 2;
     public static final int MESSAGE_DEVICE_NAME = 3;
     public static final int MESSAGE_TOAST = 4;
 
@@ -102,7 +102,7 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
                             break;
                     }
                     break;
-                case MESSAGE_WRITE:
+                case MESSAGE_SENT:
                     if (obj instanceof TypedMessagePacket) {
                         adapterMainChat.add("Me: " + ((TypedMessagePacket) obj).getData());
                     }
@@ -111,7 +111,7 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
                         adapterMainChat.add("Size: " + ((VoiceFilePacket) obj).getData().length());
                     }
                     break;
-                case MESSAGE_READ:
+                case MESSAGE_RECEIVED:
                     if (obj instanceof TypedMessagePacket) {
                         adapterMainChat.add(connectedDevice + ": " + ((TypedMessagePacket) obj).getData());
                     }
