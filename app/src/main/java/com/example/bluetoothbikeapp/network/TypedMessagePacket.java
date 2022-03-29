@@ -40,7 +40,7 @@ public class TypedMessagePacket extends BasePacket<String> {
         while (readBytes < length) {
             bytes = inputStream.read(buffer);
             readBytes += bytes;
-            builder.append(new String(buffer, StandardCharsets.UTF_8));
+            builder.append(new String(buffer, 0, bytes, StandardCharsets.UTF_8));
         }
         data = builder.toString();
     }
