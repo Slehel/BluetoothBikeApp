@@ -2,6 +2,7 @@ package com.example.bluetoothbikeapp.network;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
@@ -19,11 +20,8 @@ public class TypedMessagePacket extends BasePacket<String> {
     }
 
     @Override
-    void addDataAsBytes(ArrayList<Byte> bytes) {
-        byte[] array = data.getBytes(StandardCharsets.UTF_8);
-        for (byte item : array) {
-            bytes.add(item);
-        }
+    void writeDataIntoStream(OutputStream outputStream) throws IOException {
+        outputStream.write(data.getBytes(StandardCharsets.UTF_8));
     }
 
     @Override

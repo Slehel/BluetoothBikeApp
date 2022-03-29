@@ -108,6 +108,7 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
                     }
                     if (obj instanceof VoiceFilePacket) {
                         adapterMainChat.add("Me (voice): " + ((VoiceFilePacket) obj).getData().getName());
+                        adapterMainChat.add("Size: " + ((VoiceFilePacket) obj).getData().length());
                     }
                     break;
                 case MESSAGE_READ:
@@ -116,6 +117,7 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
                     }
                     if (obj instanceof VoiceFilePacket) {
                         adapterMainChat.add(connectedDevice + " (voice): " + ((VoiceFilePacket) obj).getData().getName());
+                        adapterMainChat.add("Size: " + ((VoiceFilePacket) obj).getData().length());
                     }
                     break;
                 case MESSAGE_DEVICE_NAME:

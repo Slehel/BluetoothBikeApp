@@ -1,12 +1,13 @@
 package com.example.bluetoothbikeapp.network;
 
-import java.io.ByteArrayOutputStream;
+import android.util.Log;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.io.OutputStream;
 
 public class VoiceFilePacket extends BasePacket<File> {
 
@@ -16,22 +17,13 @@ public class VoiceFilePacket extends BasePacket<File> {
     }
 
     @Override
-    void addDataAsBytes(ArrayList<Byte> arrayList) {
+    void writeDataIntoStream(OutputStream outputStream) throws IOException {
         FileInputStream inputStream;
-        try {
-            inputStream = new FileInputStream(data);
-            byte[] b = new byte[1024];
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-            int c;
-            while ((c = inputStream.read(b)) != -1) {
-                os.write(b, 0, c);
-            }
-            byte[] byteArray = os.toByteArray();
-            for (byte item : byteArray) {
-                arrayList.add(item);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        inputStream = new FileInputStream(data);
+        byte[] b = new byte[1024];
+        int c;
+        while ((c = inputStream.read(b)) != -1) {
+            outputStream.write(b, 0, c);
         }
     }
 
@@ -51,7 +43,10 @@ public class VoiceFilePacket extends BasePacket<File> {
         while (readBytes < length) {
             bytes = inputStream.read(buffer);
             readBytes += bytes;
-            outputStream.write(bytes);
+            outputStream.write(buffer, 0, bytes);
+            Log.d(getClass().getSimpleName(), "Read bytes: " + readBytes);
         }
+        Log.d(getClass().getSimpleName(), "Read bytes: " + readBytes);
+        outputStream.close();
     }
 }

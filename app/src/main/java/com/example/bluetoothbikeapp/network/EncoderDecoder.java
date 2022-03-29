@@ -1,7 +1,11 @@
 package com.example.bluetoothbikeapp.network;
 
+import android.util.Log;
+
 import com.example.bluetoothbikeapp.BluetoothBikeApplication;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 
@@ -24,21 +28,24 @@ public class EncoderDecoder {
     }
 
     @SuppressWarnings("unchecked")
-    public byte[] encode(BasePacket packet) {
+    public void encodeInto(BasePacket packet, OutputStream outputStream) throws IOException {
+        ArrayList<Byte> headerBytes = new ArrayList<>();
+        // add header
         byte typeId = (byte) packet.packetType.ordinal();
-        ArrayList<Byte> bytes = new ArrayList<>();
-        bytes.add(typeId);
+        headerBytes.add(typeId);
 
         // add length
-        addDataLengthToBytes(bytes, packet.getDataLength());
-        packet.addDataAsBytes(bytes);
+        addDataLengthToBytes(headerBytes, packet.getDataLength());
 
-        byte[] bytesToSend = new byte[bytes.size()];
-        for (int i = 0; i < bytes.size(); i++) {
-            bytesToSend[i] = bytes.get(i);
+        // send header
+        byte[] headerBytesToSend = new byte[headerBytes.size()];
+        for (int i = 0; i < headerBytes.size(); i++) {
+            headerBytesToSend[i] = headerBytes.get(i);
         }
+        outputStream.write(headerBytesToSend);
 
-        return bytesToSend;
+        // send body
+        packet.writeDataIntoStream(outputStream);
     }
 
     public BasePacket getPacketClassFromFirstByte(byte typeByte) {
@@ -54,6 +61,7 @@ public class EncoderDecoder {
     }
 
     private void addDataLengthToBytes(ArrayList<Byte> bytes, long length) {
+        Log.d(getClass().getSimpleName(), "Message length: " + length);
         BigInteger bigInt = BigInteger.valueOf(length);
         byte[] byteArray = bigInt.toByteArray();
         int zeros = PACKET_LENGTH_BYTE_SIZE - byteArray.length;

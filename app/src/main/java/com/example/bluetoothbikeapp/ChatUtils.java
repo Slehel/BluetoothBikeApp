@@ -265,6 +265,7 @@ public class ChatUtils {
                     for (int i = 1; i < EncoderDecoder.HEADER_BYTE_SIZE; i++) {
                         length = (length << 8) + (headerBuffer[i] & 0xFF);
                     }
+                    Log.d(getClass().getSimpleName(), "Incoming message length: " + length);
 
                     packet.readFromStream(length, inputStream);
 
@@ -276,9 +277,8 @@ public class ChatUtils {
         }
 
         public void write(BasePacket packet) {
-            byte[] buffer = encoderDecoder.encode(packet);
             try {
-                outputStream.write(buffer);
+                encoderDecoder.encodeInto(packet, outputStream);
                 handler.obtainMessage(BluetoothDeviceActivity.MESSAGE_WRITE, -1, -1, packet).sendToTarget();
             } catch (IOException e) {
                 Log.e(BluetoothBikeApplication.TAG, e.getMessage(), e);

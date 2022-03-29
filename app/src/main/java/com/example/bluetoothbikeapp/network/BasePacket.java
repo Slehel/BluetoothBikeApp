@@ -2,7 +2,7 @@ package com.example.bluetoothbikeapp.network;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.io.OutputStream;
 
 public abstract class BasePacket<T> {
 
@@ -13,7 +13,7 @@ public abstract class BasePacket<T> {
         this.packetType = packetType;
     }
 
-    abstract void addDataAsBytes(ArrayList<Byte> bytes);
+    abstract void writeDataIntoStream(OutputStream outputStream) throws IOException;
 
     protected abstract long getDataLength();
 
