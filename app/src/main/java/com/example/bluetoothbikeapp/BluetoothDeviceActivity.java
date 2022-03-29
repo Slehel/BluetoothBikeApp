@@ -31,16 +31,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.example.bluetoothbikeapp.network.BasePacket;
 import com.example.bluetoothbikeapp.network.TypedMessagePacket;
+import com.example.bluetoothbikeapp.network.VoiceFilePacket;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 @SuppressLint("MissingPermission")
 public class BluetoothDeviceActivity extends AppCompatActivity {
@@ -80,7 +77,7 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
     private int PERMISSION_CODE = 21;
 
     private MediaRecorder mediaRecorder;
-    private String recordFile;
+    private File recordFile;
 
     private Chronometer timer;
 
@@ -113,6 +110,9 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
                     Object obj = message.obj;
                     if (obj instanceof TypedMessagePacket) {
                         adapterMainChat.add(connectedDevice + ": " + ((TypedMessagePacket) obj).getData());
+                    }
+                    if (obj instanceof VoiceFilePacket) {
+                        adapterMainChat.add(connectedDevice + " (voice): " + ((VoiceFilePacket) obj).getData().getName());
                     }
                     break;
                 case MESSAGE_DEVICE_NAME:
@@ -239,39 +239,31 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
         timer.stop();
 
         //Change text on page to file saved
-        filenameText.setText("Recording Stopped, File Saved : " + recordFile);
+        filenameText.setText("Recording Stopped, File Saved : " + recordFile.getPath());
 
         //Stop media recorder and set it to null for further use to record new audio
         mediaRecorder.stop();
         mediaRecorder.release();
         mediaRecorder = null;
 
-        // TODO add to chat feed
+        adapterMainChat.add("Me (voice): " + recordFile.getName());
 
         // send
+        VoiceFilePacket packet = new VoiceFilePacket(recordFile);
+        chatUtils.write(packet);
     }
 
     private void startRecording() {
-        //Get app external directory path
-        File filesDir = this.getFilesDir();
-        File recordsDir = new File(filesDir, "recordings");
-        if (!recordsDir.exists() && !recordsDir.mkdir()) {
-            return; // failed to create recordings directory
-        }
-
         //Start timer from 0
         timer.setBase(SystemClock.elapsedRealtime());
         timer.start();
 
-        String recordPath = recordsDir.getAbsolutePath();
+        recordFile = ((BluetoothBikeApplication) getApplication()).getNewRecordingFile();
+        if (recordFile == null) {
+            return; // Couldn't create file
+        }
 
-        //Get current date and time
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy_MM_dd_hh_mm_ss", Locale.CANADA);
-        Date now = new Date();
-
-        //initialize filename variable with date and time at the end to ensure the new file wont overwrite previous file
-        recordFile = "Recording_" + formatter.format(now) + ".3gp";
-        Log.i(LOG_TAG, "path: " + recordPath);
+        Log.i(LOG_TAG, "path: " + recordFile.getPath());
 
         filenameText.setText("Recording, File Name : " + recordFile);
 
@@ -279,7 +271,7 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
         mediaRecorder = new MediaRecorder();
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        mediaRecorder.setOutputFile(recordPath + "/" + recordFile);
+        mediaRecorder.setOutputFile(recordFile.getPath());
         mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 
         try {

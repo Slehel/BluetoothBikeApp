@@ -27,7 +27,7 @@ public class ChatUtils {
     private ConnectThread connectThread;
     private AcceptThread acceptThread;
     private ConnectedThread connectedThread;
-    private EncoderDecoder encoderDecoder = new EncoderDecoder();
+    private final EncoderDecoder encoderDecoder;
 
     private final UUID APP_UUID = UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
     private final String APP_NAME = "BluetoothChatApp";
@@ -42,6 +42,7 @@ public class ChatUtils {
     public ChatUtils(Context context, Handler handler) {
         this.context = context;
         this.handler = handler;
+        encoderDecoder = new EncoderDecoder((BluetoothBikeApplication) context.getApplicationContext());
 
         state = STATE_NONE;
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();

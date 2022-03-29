@@ -1,5 +1,7 @@
 package com.example.bluetoothbikeapp.network;
 
+import com.example.bluetoothbikeapp.BluetoothBikeApplication;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 
@@ -7,6 +9,12 @@ public class EncoderDecoder {
 
     public static final int PACKET_LENGTH_BYTE_SIZE = 8;
     public static final int HEADER_BYTE_SIZE = 1 + PACKET_LENGTH_BYTE_SIZE;
+
+    private final BluetoothBikeApplication application;
+
+    public EncoderDecoder(BluetoothBikeApplication application) {
+        this.application = application;
+    }
 
     enum PacketType {
 
@@ -40,7 +48,7 @@ public class EncoderDecoder {
             case TYPED_MESSAGE:
                 return new TypedMessagePacket();
             case VOICE_FILE:
-                return null; // TODO
+                return new VoiceFilePacket(application.getNewRecordingFile());
         }
         return null;
     }
